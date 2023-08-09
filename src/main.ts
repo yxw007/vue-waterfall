@@ -1,10 +1,6 @@
 import "../demo/common/css/style.css";
-import Vue from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
 
-const app = new Vue({
-	el: "#app",
-	render(h) {
-		return h(App);
-	}
-});
+const app = createApp(App);
+app.mount("#app");

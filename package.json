@@ -8,8 +8,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "webpack --config build/webpack.min.conf.js",
-    "test": "echo '42'"
+    "build": "vite build"
   },
   "repository": {
     "type": "git",
@@ -22,6 +21,9 @@
     "layout"
   ],
   "author": "MopTym <moptym@163.com>",
+  "contributors": [
+    "Potter <aa4790139@gmail.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/MopTym/vue-waterfall/issues"
@@ -29,20 +31,12 @@
   "homepage": "https://github.com/MopTym/vue-waterfall",
   "devDependencies": {
     "@types/node": "^20.4.9",
-    "@vitejs/plugin-vue2": "^2.2.0",
-    "babel-core": "^6.5.2",
-    "babel-loader": "^6.2.2",
-    "babel-plugin-transform-runtime": "^6.5.2",
-    "babel-preset-es2015": "^6.3.13",
-    "babel-runtime": "^5.8.35",
-    "copy-webpack-plugin": "^3.0.1",
-    "css-loader": "^0.23.1",
+    "@vitejs/plugin-vue": "^4.2.3",
     "vite": "^4.4.9",
-    "vue-loader": "^11.3.4",
-    "vue-template-compiler": "^2.7.14",
-    "webpack": "^1.12.13"
+    "vite-plugin-dts": "^3.5.1",
+    "vue": "^3.3.4"
   },
   "dependencies": {
-    "vue": "^2.7.14"
+    "@vueuse/core": "^10.3.0"
   }
 }

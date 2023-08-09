@@ -1,14 +1,32 @@
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue2'
-import { resolve } from "path";
+import vue from '@vitejs/plugin-vue'
+import dts from 'vite-plugin-dts';
+import { resolve } from 'path';
 
-// https://vitejs.dev/config/
-export default defineConfig({
+const isBuild = process.argv.includes("build");
+
+const devConfig = () => defineConfig({
 	plugins: [vue()],
-	resolve: {
-		alias: {
-			"@": resolve(__dirname, "src")
+});
+
+const libConfig = () => defineConfig({
+	plugins: [vue(), dts()],
+	build: {
+		target: 'es2015',
+		sourcemap: true,
+		lib: {
+			entry: resolve(__dirname, "src/index.ts"),
+			name: "VueWaterfall"
 		},
-		extensions: [".mjs", ".js", ".mts", ".jsx", ".json", ".vue", ".svg", ".png", ".jpg", ".jpeg"]
-	},
-})
+		rollupOptions: {
+			external: ["vue"],
+			output: {
+				globals: {
+					vue: 'Vue',
+				},
+			},
+		}
+	}
+});
+
+export default isBuild ? libConfig() : devConfig();

@@ -8,101 +8,66 @@
 <style>
 .vue-waterfall {
   position: relative;
-  /*overflow: hidden; cause clientWidth = 0 in IE if height not bigger than 0 */
 }
 </style>
 
-<script>
+<script setup lang="ts">
+import { getCurrentInstance, ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useEventBus } from '@vueuse/core'
+import { waterfallReflowedKey } from "./common"
 
-const MOVE_CLASS_PROP = '_wfMoveClass'
+const reflowedEvent = useEventBus(waterfallReflowedKey);
 
-export default {
-  props: {
-    autoResize: {
-      default: true
-    },
-    interval: {
-      default: 200,
-      validator: (val) => val >= 0
-    },
-    align: {
-      default: 'left',
-      validator: (val) => ~['left', 'right', 'center'].indexOf(val)
-    },
-    line: {
-      default: 'v',
-      validator: (val) => ~['v', 'h'].indexOf(val)
-    },
-    lineGap: {
-      required: true,
-      validator: (val) => val >= 0
-    },
-    minLineGap: {
-      validator: (val) => val >= 0
-    },
-    maxLineGap: {
-      validator: (val) => val >= 0
-    },
-    singleMaxWidth: {
-      validator: (val) => val >= 0
-    },
-    fixedHeight: {
-      default: false
-    },
-    grow: {
-      validator: (val) => val instanceof Array
-    },
-    watch: {
-      default: () => ({})
-    }
-  },
-  data: () => ({
-    style: {
-      height: '',
-      overflow: ''
-    },
-    token: null
-  }),
-  methods: {
-    reflowHandler,
-    autoResizeHandler,
-    reflow
-  },
-  created() {
-    debugger
-    this.virtualRects = []
-    this.$on('reflow', () => {
-      this.reflowHandler()
-    })
-    this.$watch(() => (
-      this.align,
-      this.line,
-      this.lineGap,
-      this.minLineGap,
-      this.maxLineGap,
-      this.singleMaxWidth,
-      this.fixedHeight,
-      this.watch
-    ), this.reflowHandler)
-    this.$watch('grow', this.reflowHandler)
-  },
-  mounted() {
-    debugger
-    this.$watch('autoResize', this.autoResizeHandler)
-    on(this.$el, getTransitionEndEvent(), tidyUpAnimations, true)
-    this.autoResizeHandler(this.autoResize)
-  },
-  beforeDestroy() {
-    this.autoResizeHandler(false)
-    off(this.$el, getTransitionEndEvent(), tidyUpAnimations, true)
-  }
+const VE_CLASS_PROP = '_wfMoveClass'
+type Align = "left" | "right" | "center";
+type Line = "v" | "h";
+type Props = {
+  autoResize?: boolean,
+  interval?: number,
+  align?: Align,
+  line?: Line,
+  lineGap: number,
+  minLineGap?: number,
+  singleMaxWidth?: number,
+  fixedHeight: boolean,
+  grow?: Array<any>,
+  datas?: Array<any>,
 }
 
+const instance = getCurrentInstance();
+
+const { autoResize, interval, align, line, lineGap, minLineGap, singleMaxWidth, fixedHeight, grow, datas } = withDefaults(defineProps<Props>(), {
+  autoResize: true,
+  interval: 200,
+  align: "left",
+  line: "v",
+  minLineGap: 0,
+  fixedHeight: false,
+  datas: Array<any>
+});
+
+const style = ref({
+  height: '',
+  overflow: ''
+});
+const token = ref(null);
+
+onMounted(() => {
+  watch('autoResize', autoResizeHandler)
+  on(instance.$el, getTransitionEndEvent(), tidyUpAnimations, true)
+  autoResizeHandler(autoResize)
+})
+
+onBeforeUnmount(() => {
+  autoResizeHandler(false)
+  off(instance.$el, getTransitionEndEvent(), tidyUpAnimations, true)
+})
+
 function autoResizeHandler(autoResize) {
-  if (autoResize === false || !this.autoResize) {
-    off(window, 'resize', this.reflowHandler, false)
+  if (autoResize.value === false || !autoResize.value) {
+    off(window, 'resize', reflowHandler, false)
   } else {
-    on(window, 'resize', this.reflowHandler, false)
+    on(window, 'resize', reflowHandler, false)
   }
 }
 
@@ -115,24 +80,24 @@ function tidyUpAnimations(event) {
 }
 
 function reflowHandler() {
-  clearTimeout(this.token)
-  this.token = setTimeout(this.reflow, this.interval)
+  clearTimeout(token.value)
+  token.value = setTimeout(reflow, interval.value)
 }
 
 function reflow() {
-  if (!this.$el) { return }
-  let width = this.$el.clientWidth
-  let metas = this.$children.map((slot) => slot.getMeta())
+  if (!instance?.vnode.el) { return }
+  let width = instance.$el.clientWidth
+  let metas = instance.$children.map((slot) => slot.getMeta())
   metas.sort((a, b) => a.order - b.order)
-  this.virtualRects = metas.map(() => ({}))
-  calculate(this, metas, this.virtualRects)
+  instance.virtualRects = metas.map(() => ({}))
+  calculate(instance, metas, instance.virtualRects)
   setTimeout(() => {
-    if (isScrollBarVisibilityChange(this.$el, width)) {
-      calculate(this, metas, this.virtualRects)
+    if (isScrollBarVisibilityChange(instance.$el, width)) {
+      calculate(instance, metas, instance.virtualRects)
     }
-    this.style.overflow = 'hidden'
-    render(this.virtualRects, metas)
-    this.$emit('reflowed', this)
+    instance.style.overflow = 'hidden'
+    render(instance.virtualRects, metas)
+    reflowedEvent.emit(instance)
   }, 0)
 }
 
@@ -160,8 +125,7 @@ function getOptions(vm) {
   }
 }
 
-var verticalLineProcessor = (() => {
-
+let verticalLineProcessor = (() => {
   function calculate(vm, options, metas, rects) {
     let width = vm.$el.clientWidth
     let grow = options.grow
@@ -170,14 +134,14 @@ var verticalLineProcessor = (() => {
       : getRowStrategy(width, options)
     let tops = getArrayFillWith(0, strategy.count)
     metas.forEach((meta, index) => {
-      let offset = tops.reduce((last, top, i) => top < tops[last] ? i : last, 0)
+      let offset = tops.reduce((last, top, i) => top < tops[last] ? i : last, 0);
       let width = strategy.width[offset % strategy.count]
       let rect = rects[index]
-      rect.top = tops[offset]
-      rect.left = strategy.left + (offset ? sum(strategy.width.slice(0, offset)) : 0)
+      rect.top = tops[offset];
+      rect.left = strategy.left + (offset ? sum(strategy.width.slice(0, offset)) : 0);
       rect.width = width
       rect.height = meta.height * (options.fixedHeight ? 1 : width / meta.width)
-      tops[offset] = tops[offset] + rect.height
+      tops[offset] = tops[offset] + rect.height;
     })
     vm.style.height = Math.max.apply(Math, tops) + 'px'
   }
@@ -187,6 +151,7 @@ var verticalLineProcessor = (() => {
     let slotWidth
     if (options.singleMaxWidth >= width) {
       count = 1
+      //! 这里啥意思? 目的是什么
       slotWidth = Math.max(width, options.minLineGap)
     } else {
       let maxContentWidth = options.maxLineGap * ~~count
@@ -214,7 +179,7 @@ var verticalLineProcessor = (() => {
     return {
       width: getArrayFillWith(slotWidth, count),
       count: count,
-      left: getLeft(width, slotWidth * count, options.align)
+      left: getLeft(width, (slotWidth) * count, options.align)
     }
   }
 
@@ -233,7 +198,7 @@ var verticalLineProcessor = (() => {
 
 })()
 
-var horizontalLineProcessor = (() => {
+let horizontalLineProcessor = (() => {
 
   function calculate(vm, options, metas, rects) {
     let width = vm.$el.clientWidth
@@ -279,6 +244,7 @@ var horizontalLineProcessor = (() => {
   function getGreedyCount(rowWidth, rowHeight, metas, offset) {
     let count = 0
     for (let i = offset, width = 0; i < metas.length && width <= rowWidth; i++) {
+      //! 按高度进行等比适配宽度
       width += metas[i].width * rowHeight / metas[i].height
       count++
     }
@@ -295,6 +261,7 @@ var horizontalLineProcessor = (() => {
     let canFit = (fitHeight <= options.maxLineGap && fitHeight >= options.minLineGap)
     if (canFit) {
       return {
+        //?cost 这个是啥?
         cost: Math.abs(options.lineGap - fitHeight),
         count: count,
         width: rowWidth,
@@ -398,7 +365,6 @@ function getTransitionEndEvent() {
 /**
  * util
  */
-
 function getArrayFillWith(item, count) {
   let getter = (typeof item === 'function') ? () => item() : () => item
   let arr = []

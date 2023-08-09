@@ -2,7 +2,7 @@
 	<div class="wrapper">
 		<waterfall :align="align"
 							 :line-gap="285"
-							 :watch="items"
+							 :datas="items"
 							 @reflowed="reflowed"
 							 ref="waterfall">
 			<!-- each component is wrapped by a waterfall slot -->
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { waterfall, waterfallSlot } from "./index"
+import { waterfall, waterfallSlot } from "../lib/index"
 import ItemFactory from "../demo/common/js/item-factory";
 
 export default {
