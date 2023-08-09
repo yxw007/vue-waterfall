@@ -1,5 +1,6 @@
 <template>
-  <div class="vue-waterfall"
+  <div ref="root"
+       class="vue-waterfall"
        :style="style">
     <slot></slot>
   </div>
@@ -12,11 +13,11 @@
 </style>
 
 <script setup lang="ts">
-import { getCurrentInstance, ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { getCurrentInstance, ref, toRefs, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useEventBus } from '@vueuse/core'
-import { waterfallReflowedKey } from "./common"
+import { reflowEvent, reflowedEvent } from "./common"
 
-const reflowedEvent = useEventBus(waterfallReflowedKey);
+const root = ref<HTMLElement | null>(null);
 
 const VE_CLASS_PROP = '_wfMoveClass'
 type Align = "left" | "right" | "center";
@@ -28,39 +29,59 @@ type Props = {
   line?: Line,
   lineGap: number,
   minLineGap?: number,
+  maxLineGap?: number,
   singleMaxWidth?: number,
-  fixedHeight: boolean,
+  fixedHeight?: boolean,
   grow?: Array<any>,
   datas?: Array<any>,
 }
 
 const instance = getCurrentInstance();
 
-const { autoResize, interval, align, line, lineGap, minLineGap, singleMaxWidth, fixedHeight, grow, datas } = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   autoResize: true,
   interval: 200,
   align: "left",
   line: "v",
   minLineGap: 0,
+  maxLineGap: 0,
   fixedHeight: false,
   datas: Array<any>
 });
+
+const { autoResize, interval, align, line, lineGap, minLineGap, maxLineGap, singleMaxWidth, fixedHeight, grow, datas } = toRefs(props);
 
 const style = ref({
   height: '',
   overflow: ''
 });
+
 const token = ref(null);
+const virtualRects = [];
 
 onMounted(() => {
-  watch('autoResize', autoResizeHandler)
-  on(instance.$el, getTransitionEndEvent(), tidyUpAnimations, true)
+  reflowEvent.on(() => {
+    reflowHandler()
+  })
+  watch(() => (
+    align,
+    line,
+    lineGap,
+    minLineGap,
+    maxLineGap,
+    singleMaxWidth,
+    fixedHeight,
+    datas
+  ), reflowHandler)
+  watch(grow, reflowHandler);
+  watch(autoResize, autoResizeHandler)
+  on(root.value, getTransitionEndEvent(), tidyUpAnimations, true)
   autoResizeHandler(autoResize)
 })
 
 onBeforeUnmount(() => {
   autoResizeHandler(false)
-  off(instance.$el, getTransitionEndEvent(), tidyUpAnimations, true)
+  off(root.value, getTransitionEndEvent(), tidyUpAnimations, true)
 })
 
 function autoResizeHandler(autoResize) {
@@ -85,17 +106,19 @@ function reflowHandler() {
 }
 
 function reflow() {
-  if (!instance?.vnode.el) { return }
-  let width = instance.$el.clientWidth
-  let metas = instance.$children.map((slot) => slot.getMeta())
+  if (!root.value) { return }
+  let width = root.value.clientWidth;
+  let slots = instance.slots.default();
+  let lastSlot = slots[slots.length - 1];
+  let metas = lastSlot.children.map((slot) => slot.getMeta())
   metas.sort((a, b) => a.order - b.order)
   instance.virtualRects = metas.map(() => ({}))
   calculate(instance, metas, instance.virtualRects)
   setTimeout(() => {
-    if (isScrollBarVisibilityChange(instance.$el, width)) {
+    if (isScrollBarVisibilityChange(root.value, width)) {
       calculate(instance, metas, instance.virtualRects)
     }
-    instance.style.overflow = 'hidden'
+    root.value.style.overflow = 'hidden'
     render(instance.virtualRects, metas)
     reflowedEvent.emit(instance)
   }, 0)

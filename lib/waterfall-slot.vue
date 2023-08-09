@@ -15,13 +15,11 @@
 </style>
 
 <script setup lang="ts">
-import { ref, watch, getCurrentInstance, onMounted, onUnmounted } from "vue";
+import { ref, watch, getCurrentInstance, nextTick, onMounted, onUnmounted } from "vue";
 import { useEventBus } from '@vueuse/core'
-import { waterfallReflowKey, waterfallReflowedKey } from "./common"
+import { reflowEvent, reflowedEvent } from "./common"
 
 const instance = getCurrentInstance();
-const reflowEvent = useEventBus(waterfallReflowKey);
-const reflowedEvent = useEventBus(waterfallReflowedKey);
 
 type Props = {
   width: number,
@@ -35,12 +33,12 @@ const { width, height, order, moveClass } = withDefaults(defineProps<Props>(), {
   moveClass: "",
 });
 
-const data = ref({
-  isShow: false
-});
+const isShow = ref<boolean>(false);
 
 function notify() {
-  reflowEvent.emit(instance);
+  nextTick(() => {
+    reflowEvent.emit(instance);
+  });
 }
 
 function getMeta() {
@@ -75,5 +73,9 @@ onMounted(() => {
 onUnmounted(() => {
   notify()
 })
+
+defineExpose({
+  getMeta
+});
 
 </script>
