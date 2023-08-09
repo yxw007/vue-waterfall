@@ -1,9 +1,7 @@
-import Waterfall from './waterfall'
-import WaterfallSlot from './waterfall-slot'
+import waterfall from './waterfall.vue'
+import waterfallSlot from './waterfall-slot.vue'
 
-module.exports = {
-  Waterfall: Waterfall,
-  WaterfallSlot: WaterfallSlot,
-  waterfall: Waterfall,
-  waterfallSlot: WaterfallSlot
+export {
+  waterfall,
+  waterfallSlot,
 }

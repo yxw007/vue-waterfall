@@ -1,5 +1,6 @@
 <template>
-  <div class="vue-waterfall" :style="style">
+  <div class="vue-waterfall"
+       :style="style">
     <slot></slot>
   </div>
 </template>
@@ -67,7 +68,8 @@ export default {
     autoResizeHandler,
     reflow
   },
-  created () {
+  created() {
+    debugger
     this.virtualRects = []
     this.$on('reflow', () => {
       this.reflowHandler()
@@ -84,18 +86,19 @@ export default {
     ), this.reflowHandler)
     this.$watch('grow', this.reflowHandler)
   },
-  mounted () {
+  mounted() {
+    debugger
     this.$watch('autoResize', this.autoResizeHandler)
     on(this.$el, getTransitionEndEvent(), tidyUpAnimations, true)
     this.autoResizeHandler(this.autoResize)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     this.autoResizeHandler(false)
     off(this.$el, getTransitionEndEvent(), tidyUpAnimations, true)
   }
 }
 
-function autoResizeHandler (autoResize) {
+function autoResizeHandler(autoResize) {
   if (autoResize === false || !this.autoResize) {
     off(window, 'resize', this.reflowHandler, false)
   } else {
@@ -103,7 +106,7 @@ function autoResizeHandler (autoResize) {
   }
 }
 
-function tidyUpAnimations (event) {
+function tidyUpAnimations(event) {
   let node = event.target
   let moveClass = node[MOVE_CLASS_PROP]
   if (moveClass) {
@@ -111,12 +114,12 @@ function tidyUpAnimations (event) {
   }
 }
 
-function reflowHandler () {
+function reflowHandler() {
   clearTimeout(this.token)
   this.token = setTimeout(this.reflow, this.interval)
 }
 
-function reflow () {
+function reflow() {
   if (!this.$el) { return }
   let width = this.$el.clientWidth
   let metas = this.$children.map((slot) => slot.getMeta())
@@ -133,17 +136,17 @@ function reflow () {
   }, 0)
 }
 
-function isScrollBarVisibilityChange (el, lastClientWidth) {
+function isScrollBarVisibilityChange(el, lastClientWidth) {
   return lastClientWidth !== el.clientWidth
 }
 
-function calculate (vm, metas, styles) {
+function calculate(vm, metas, styles) {
   let options = getOptions(vm)
   let processor = vm.line === 'h' ? horizontalLineProcessor : verticalLineProcessor
   processor.calculate(vm, options, metas, styles)
 }
 
-function getOptions (vm) {
+function getOptions(vm) {
   const maxLineGap = vm.maxLineGap ? +vm.maxLineGap : vm.lineGap
   return {
     align: ~['left', 'right', 'center'].indexOf(vm.align) ? vm.align : 'left',
@@ -159,7 +162,7 @@ function getOptions (vm) {
 
 var verticalLineProcessor = (() => {
 
-  function calculate (vm, options, metas, rects) {
+  function calculate(vm, options, metas, rects) {
     let width = vm.$el.clientWidth
     let grow = options.grow
     let strategy = grow
@@ -179,7 +182,7 @@ var verticalLineProcessor = (() => {
     vm.style.height = Math.max.apply(Math, tops) + 'px'
   }
 
-  function getRowStrategy (width, options) {
+  function getRowStrategy(width, options) {
     let count = width / options.lineGap
     let slotWidth
     if (options.singleMaxWidth >= width) {
@@ -215,7 +218,7 @@ var verticalLineProcessor = (() => {
     }
   }
 
-  function getRowStrategyWithGrow (width, grow) {
+  function getRowStrategyWithGrow(width, grow) {
     let total = sum(grow)
     return {
       width: grow.map(val => width * val / total),
@@ -232,7 +235,7 @@ var verticalLineProcessor = (() => {
 
 var horizontalLineProcessor = (() => {
 
-  function calculate (vm, options, metas, rects) {
+  function calculate(vm, options, metas, rects) {
     let width = vm.$el.clientWidth
     let total = metas.length
     let top = 0
@@ -254,7 +257,7 @@ var horizontalLineProcessor = (() => {
     vm.style.height = top + 'px'
   }
 
-  function getRowStrategy (width, options, metas, offset) {
+  function getRowStrategy(width, options, metas, offset) {
     let greedyCount = getGreedyCount(width, options.lineGap, metas, offset)
     let lazyCount = Math.max(greedyCount - 1, 1)
     let greedySize = getContentSize(width, options, metas, offset, greedyCount)
@@ -273,7 +276,7 @@ var horizontalLineProcessor = (() => {
     }
   }
 
-  function getGreedyCount (rowWidth, rowHeight, metas, offset) {
+  function getGreedyCount(rowWidth, rowHeight, metas, offset) {
     let count = 0
     for (let i = offset, width = 0; i < metas.length && width <= rowWidth; i++) {
       width += metas[i].width * rowHeight / metas[i].height
@@ -282,7 +285,7 @@ var horizontalLineProcessor = (() => {
     return count
   }
 
-  function getContentSize (rowWidth, options, metas, offset, count) {
+  function getContentSize(rowWidth, options, metas, offset, count) {
     let originWidth = 0
     for (let i = count - 1; i >= 0; i--) {
       let meta = metas[offset + i]
@@ -308,7 +311,7 @@ var horizontalLineProcessor = (() => {
     }
   }
 
-  function chooseFinalSize (lazySize, greedySize, rowWidth) {
+  function chooseFinalSize(lazySize, greedySize, rowWidth) {
     if (lazySize.cost === Infinity && greedySize.cost === Infinity) {
       return greedySize.width < rowWidth ? greedySize : lazySize
     } else {
@@ -322,7 +325,7 @@ var horizontalLineProcessor = (() => {
 
 })()
 
-function getLeft (width, contentWidth, align) {
+function getLeft(width, contentWidth, align) {
   switch (align) {
     case 'right':
       return width - contentWidth
@@ -333,11 +336,11 @@ function getLeft (width, contentWidth, align) {
   }
 }
 
-function sum (arr) {
+function sum(arr) {
   return arr.reduce((sum, val) => sum + val)
 }
 
-function render (rects, metas) {
+function render(rects, metas) {
   let metasNeedToMoveByTransform = metas.filter((meta) => meta.moveClass)
   let firstRects = getRects(metasNeedToMoveByTransform)
   applyRects(rects, metas)
@@ -353,11 +356,11 @@ function render (rects, metas) {
   })
 }
 
-function getRects (metas) {
+function getRects(metas) {
   return metas.map((meta) => meta.vm.rect)
 }
 
-function applyRects (rects, metas) {
+function applyRects(rects, metas) {
   rects.forEach((rect, i) => {
     let style = metas[i].node.style
     metas[i].vm.rect = rect
@@ -367,22 +370,22 @@ function applyRects (rects, metas) {
   })
 }
 
-function setTransform (node, firstRect, lastRect) {
+function setTransform(node, firstRect, lastRect) {
   let dx = firstRect.left - lastRect.left
   let dy = firstRect.top - lastRect.top
   let sw = firstRect.width / lastRect.width
   let sh = firstRect.height / lastRect.height
   node.style.transform =
-  node.style.WebkitTransform = `translate(${dx}px,${dy}px) scale(${sw},${sh})`
+    node.style.WebkitTransform = `translate(${dx}px,${dy}px) scale(${sw},${sh})`
   node.style.transitionDuration = '0s'
 }
 
-function clearTransform (node) {
+function clearTransform(node) {
   node.style.transform = node.style.WebkitTransform = ''
   node.style.transitionDuration = ''
 }
 
-function getTransitionEndEvent () {
+function getTransitionEndEvent() {
   let isWebkitTrans =
     window.ontransitionend === undefined &&
     window.onwebkittransitionend !== undefined
@@ -396,7 +399,7 @@ function getTransitionEndEvent () {
  * util
  */
 
-function getArrayFillWith (item, count) {
+function getArrayFillWith(item, count) {
   let getter = (typeof item === 'function') ? () => item() : () => item
   let arr = []
   for (let i = 0; i < count; i++) {
@@ -405,7 +408,7 @@ function getArrayFillWith (item, count) {
   return arr
 }
 
-function addClass (elem, name) {
+function addClass(elem, name) {
   if (!hasClass(elem, name)) {
     let cur = attr(elem, 'class').trim()
     let res = (cur + ' ' + name).trim()
@@ -413,17 +416,17 @@ function addClass (elem, name) {
   }
 }
 
-function removeClass (elem, name) {
+function removeClass(elem, name) {
   let reg = new RegExp('\\s*\\b' + name + '\\b\\s*', 'g')
   let res = attr(elem, 'class').replace(reg, ' ').trim()
   attr(elem, 'class', res)
 }
 
-function hasClass (elem, name) {
+function hasClass(elem, name) {
   return (new RegExp('\\b' + name + '\\b')).test(attr(elem, 'class'))
 }
 
-function attr (elem, name, value) {
+function attr(elem, name, value) {
   if (typeof value !== 'undefined') {
     elem.setAttribute(name, value)
   } else {
@@ -431,11 +434,11 @@ function attr (elem, name, value) {
   }
 }
 
-function on (elem, type, listener, useCapture = false) {
+function on(elem, type, listener, useCapture = false) {
   elem.addEventListener(type, listener, useCapture)
 }
 
-function off (elem, type, listener, useCapture = false) {
+function off(elem, type, listener, useCapture = false) {
   elem.removeEventListener(type, listener, useCapture)
 }
 

@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/MopTym/vue-waterfall",
   "devDependencies": {
+    "@types/node": "^20.4.9",
     "@vitejs/plugin-vue2": "^2.2.0",
     "babel-core": "^6.5.2",
     "babel-loader": "^6.2.2",
@@ -38,10 +39,10 @@
     "css-loader": "^0.23.1",
     "vite": "^4.4.9",
     "vue-loader": "^11.3.4",
-    "vue-template-compiler": "^2.2.6",
+    "vue-template-compiler": "^2.7.14",
     "webpack": "^1.12.13"
   },
   "dependencies": {
-    "vue": "2.7.14"
+    "vue": "^2.7.14"
   }
 }
