@@ -7,7 +7,7 @@ function generateRandomItems(count) {
       style: {
         background: getRandomColor()
       },
-      width: 285,
+      width: 100 + ~~(Math.random() * 50),
       height: 100 + ~~(Math.random() * 50)
     }
   }

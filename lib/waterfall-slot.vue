@@ -16,7 +16,6 @@
 
 <script setup lang="ts">
 import { ref, watch, getCurrentInstance, nextTick, onMounted, onUnmounted } from "vue";
-import { useEventBus } from '@vueuse/core'
 import { reflowEvent, reflowedEvent } from "./common"
 
 const instance = getCurrentInstance();
@@ -41,14 +40,16 @@ function notify() {
   });
 }
 
+console.log("vue-waterfall-slot");
+
 function getMeta() {
   return {
     vm: instance,
-    node: instance.$el,
-    order: instance.order,
-    width: instance.width,
-    height: instance.height,
-    moveClass: instance.moveClass
+    node: instance.ctx.$el,
+    order: order,
+    width: width,
+    height: height,
+    moveClass: moveClass
   }
 }
 

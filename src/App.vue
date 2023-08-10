@@ -1,7 +1,10 @@
 <template>
 	<div class="wrapper">
 		<waterfall :align="align"
-							 :line-gap="285"
+							 :line-gap="200"
+							 :min-line-gap="100"
+							 :max-line-gap="220"
+							 :single-max-width="300"
 							 :datas="items"
 							 @reflowed="reflowed"
 							 ref="waterfall">
@@ -29,8 +32,8 @@ export default {
 		waterfall, waterfallSlot
 	},
 	data: () => ({
-		align: 'left',
-		items: ItemFactory.get(40),
+		align: 'right',
+		items: ItemFactory.get(100),
 		isBusy: false
 	}),
 	created() {
@@ -62,8 +65,4 @@ export default {
 </script>
 
 <style>
-.item {
-	margin-right: 30px;
-	margin-bottom: 30px;
-}
 </style>

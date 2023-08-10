@@ -14,12 +14,10 @@
 
 <script setup lang="ts">
 import { getCurrentInstance, ref, toRefs, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useEventBus } from '@vueuse/core'
 import { reflowEvent, reflowedEvent } from "./common"
 
 const root = ref<HTMLElement | null>(null);
-
-const VE_CLASS_PROP = '_wfMoveClass'
+const MOVE_CLASS_PROP = '_wfMoveClass'
 type Align = "left" | "right" | "center";
 type Line = "v" | "h";
 type Props = {
@@ -48,7 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
   fixedHeight: false,
   datas: Array<any>
 });
-
+const emit = defineEmits(["reflowed"]);
 const { autoResize, interval, align, line, lineGap, minLineGap, maxLineGap, singleMaxWidth, fixedHeight, grow, datas } = toRefs(props);
 
 const style = ref({
@@ -57,12 +55,14 @@ const style = ref({
 });
 
 const token = ref(null);
-const virtualRects = [];
+let virtualRects = [];
+const childs = [];
 
 onMounted(() => {
-  reflowEvent.on(() => {
+  reflowEvent.on((child) => {
+    childs.push(child);
     reflowHandler()
-  })
+  });
   watch(() => (
     align,
     line,
@@ -107,20 +107,22 @@ function reflowHandler() {
 
 function reflow() {
   if (!root.value) { return }
+  console.log("reflow");
+
   let width = root.value.clientWidth;
-  let slots = instance.slots.default();
-  let lastSlot = slots[slots.length - 1];
-  let metas = lastSlot.children.map((slot) => slot.getMeta())
+  let metas = childs.map((child) => child.exposeProxy.getMeta())
+  // childs.length = 0;
   metas.sort((a, b) => a.order - b.order)
-  instance.virtualRects = metas.map(() => ({}))
-  calculate(instance, metas, instance.virtualRects)
+  virtualRects = metas.map(() => ({}))
+  calculate(metas, virtualRects)
   setTimeout(() => {
     if (isScrollBarVisibilityChange(root.value, width)) {
-      calculate(instance, metas, instance.virtualRects)
+      calculate(metas, virtualRects)
     }
     root.value.style.overflow = 'hidden'
-    render(instance.virtualRects, metas)
+    render(virtualRects, metas)
     reflowedEvent.emit(instance)
+    emit("reflowed");
   }, 0)
 }
 
@@ -128,29 +130,29 @@ function isScrollBarVisibilityChange(el, lastClientWidth) {
   return lastClientWidth !== el.clientWidth
 }
 
-function calculate(vm, metas, styles) {
-  let options = getOptions(vm)
-  let processor = vm.line === 'h' ? horizontalLineProcessor : verticalLineProcessor
-  processor.calculate(vm, options, metas, styles)
+function calculate(metas, styles) {
+  let options = getOptions()
+  let processor = line.value === 'h' ? horizontalLineProcessor : verticalLineProcessor
+  processor.calculate(options, metas, styles)
 }
 
-function getOptions(vm) {
-  const maxLineGap = vm.maxLineGap ? +vm.maxLineGap : vm.lineGap
+function getOptions() {
+  const maxLGap = maxLineGap.value ? +maxLineGap.value : lineGap.value
   return {
-    align: ~['left', 'right', 'center'].indexOf(vm.align) ? vm.align : 'left',
-    line: ~['v', 'h'].indexOf(vm.line) ? vm.line : 'v',
-    lineGap: +vm.lineGap,
-    minLineGap: vm.minLineGap ? +vm.minLineGap : vm.lineGap,
-    maxLineGap: maxLineGap,
-    singleMaxWidth: Math.max(vm.singleMaxWidth || 0, maxLineGap),
-    fixedHeight: !!vm.fixedHeight,
-    grow: vm.grow && vm.grow.map(val => +val)
+    align: ~['left', 'right', 'center'].indexOf(align.value) ? align.value : 'left',
+    line: ~['v', 'h'].indexOf(line.value) ? line.value : 'v',
+    lineGap: +lineGap.value,
+    minLineGap: minLineGap.value ? +minLineGap.value : lineGap.value,
+    maxLineGap: maxLGap,
+    singleMaxWidth: Math.max(singleMaxWidth.value || 0, maxLGap),
+    fixedHeight: !!fixedHeight.value,
+    grow: grow.value && grow.value.map(val => +val)
   }
 }
 
 let verticalLineProcessor = (() => {
-  function calculate(vm, options, metas, rects) {
-    let width = vm.$el.clientWidth
+  function calculate(options, metas, rects) {
+    let width = instance.ctx.$el.clientWidth
     let grow = options.grow
     let strategy = grow
       ? getRowStrategyWithGrow(width, grow)
@@ -166,7 +168,7 @@ let verticalLineProcessor = (() => {
       rect.height = meta.height * (options.fixedHeight ? 1 : width / meta.width)
       tops[offset] = tops[offset] + rect.height;
     })
-    vm.style.height = Math.max.apply(Math, tops) + 'px'
+    style.value.height = Math.max.apply(Math, tops) + 'px';
   }
 
   function getRowStrategy(width, options) {
@@ -218,7 +220,6 @@ let verticalLineProcessor = (() => {
   return {
     calculate
   }
-
 })()
 
 let horizontalLineProcessor = (() => {
