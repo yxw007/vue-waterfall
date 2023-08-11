@@ -1,0 +1,12 @@
+{
+  "name": "play",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "vue-waterfall3": "^2.0.0"
+  }
+}
