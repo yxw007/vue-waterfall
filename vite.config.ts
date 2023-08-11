@@ -5,6 +5,8 @@ import { resolve } from 'path';
 
 const isBuild = process.argv.includes("build");
 
+console.log("isBuild:", isBuild);
+
 const devConfig = () => defineConfig({
 	plugins: [vue()],
 });
@@ -12,11 +14,11 @@ const devConfig = () => defineConfig({
 const libConfig = () => defineConfig({
 	plugins: [vue(), dts()],
 	build: {
-		target: 'es2015',
 		sourcemap: true,
 		lib: {
-			entry: resolve(__dirname, "src/index.ts"),
-			name: "VueWaterfall"
+			entry: resolve(__dirname, "lib/index.ts"),
+			name: "VueWaterfall",
+			fileName: "vue-waterfall"
 		},
 		rollupOptions: {
 			external: ["vue"],

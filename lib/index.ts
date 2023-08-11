@@ -1,7 +1,7 @@
-import waterfall from './waterfall.vue'
-import waterfallSlot from './waterfall-slot.vue'
+import Waterfall from './waterfall.vue'
+import WaterfallSlot from './waterfall-slot.vue'
 
 export {
-  waterfall,
-  waterfallSlot,
+  Waterfall,
+  WaterfallSlot,
 }

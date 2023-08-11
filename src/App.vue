@@ -1,7 +1,7 @@
 <template>
 	<div class="wrapper"
 			 @click="shuffle">
-		<waterfall :align="align"
+		<Waterfall :align="align"
 							 :line-gap="200"
 							 :min-line-gap="100"
 							 :max-line-gap="220"
@@ -10,27 +10,27 @@
 							 @reflowed="reflowed"
 							 ref="waterfall">
 			<!-- each component is wrapped by a waterfall slot -->
-			<waterfall-slot v-for="(item, index) in items"
-											:width="item.width"
-											:height="item.height"
-											:order="index"
-											:key="item.index"
-											move-class="item-move">
+			<WaterfallSlot v-for="(item, index) in items"
+										 :width="item.width"
+										 :height="item.height"
+										 :order="index"
+										 :key="item.index"
+										 move-class="item-move">
 				<div class="item"
 						 :style="item.style"
 						 :index="item.index"></div>
-			</waterfall-slot>
-		</waterfall>
+			</WaterfallSlot>
+		</Waterfall>
 	</div>
 </template>
 
 <script>
-import { waterfall, waterfallSlot } from "../lib/index"
+import { Waterfall, WaterfallSlot } from "../lib/index"
 import ItemFactory from "../demo/common/js/item-factory";
 
 export default {
 	components: {
-		waterfall, waterfallSlot
+		Waterfall, WaterfallSlot
 	},
 	data: () => ({
 		align: 'center',

@@ -1,10 +1,17 @@
 {
-  "name": "vue-waterfall",
-  "version": "1.0.6",
+  "name": "vue-waterfall3",
+  "version": "2.0.0",
   "description": "A waterfall layout component for Vue.js",
-  "main": "lib/vue-waterfall.min.js",
+  "type": "module",
+  "types": "./dist/lib/index.d.ts",
+  "module": "./dist/vue-waterfall.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-waterfall.mjs"
+    }
+  },
   "files": [
-    "lib"
+    "dist"
   ],
   "scripts": {
     "dev": "vite",
@@ -12,23 +19,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MopTym/vue-waterfall.git"
+    "url": "git+https://github.com/yxw007/vue-waterfall.git"
   },
   "keywords": [
     "waterfall",
-    "vue",
-    "pinterest",
+    "vue3",
     "layout"
   ],
-  "author": "MopTym <moptym@163.com>",
-  "contributors": [
-    "Potter <aa4790139@gmail.com>"
-  ],
+  "author": "Potter <aa4790139@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MopTym/vue-waterfall/issues"
+    "url": "https://github.com/yxw007/vue-waterfall/issues"
   },
-  "homepage": "https://github.com/MopTym/vue-waterfall",
+  "homepage": "https://github.com/yxw007/vue-waterfall",
   "devDependencies": {
     "@types/node": "^20.4.9",
     "@vitejs/plugin-vue": "^4.2.3",
