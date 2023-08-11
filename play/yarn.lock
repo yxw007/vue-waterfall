@@ -34,9 +34,9 @@ vue-demi@>=0.14.5:
   resolved "https://registry.npmjs.org/vue-demi/-/vue-demi-0.14.5.tgz#676d0463d1a1266d5ab5cba932e043d8f5f2fbd9"
   integrity sha512-o9NUVpl/YlsGJ7t+xuqJKx8EBGf1quRhCiT6D/J0pfwmk9zUwYkC7yrF4SZCe6fETvSM3UNL2edcbYrSyc4QHA==
 
-vue-waterfall3@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/vue-waterfall3/-/vue-waterfall3-2.0.0.tgz#92a73bd7ca2ae6619e3515fb35927eebf535cb96"
-  integrity sha512-8Ht2NQp7ntMEYzDGaUgRdOlqzr6aIQIXhtosiMiiVLry42ZCVAdSS0TNBfsMMtHKSSkoA4kbPTNjDUpz7MwQjg==
+vue-waterfall3@^2.0.0-alpha.2:
+  version "2.0.0-alpha.2"
+  resolved "https://registry.npmjs.org/vue-waterfall3/-/vue-waterfall3-2.0.0-alpha.2.tgz#bec1412fb5a133daa3d236ddaa2a00261411ecf9"
+  integrity sha512-9juvgA0MXJTnkwn6aBW4TrzEFYM9yuYP0CAWeclePRKPg73ZNLSJTbrWI2F3SDIoeOxGWN84xqSb+WZNnSwYYg==
   dependencies:
     "@vueuse/core" "^10.3.0"

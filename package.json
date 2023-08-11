@@ -1,14 +1,13 @@
 {
   "name": "vue-waterfall3",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.3",
   "description": "A waterfall layout component for Vue.js",
   "types": "./dist/lib/index.d.ts",
-  "main": "./dist/vue-waterfall.js",
   "module": "./dist/vue-waterfall.mjs",
   "exports": {
     "./dist/style.css": "./dist/style.css",
     ".": {
-      "import": "./dist/vue-waterfall.js",
+      "import": "./dist/vue-waterfall.mjs",
       "require": "./dist/vue-waterfall.umd.cjs"
     }
   },

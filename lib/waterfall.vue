@@ -29,7 +29,7 @@ const MOVE_CLASS_PROP = '_wfMoveClass'
 type Props = {
   autoResize?: boolean,
   interval?: number,
-  align?: Align,
+  align?: "left" | "center" | "right",
   line?: Line,
   lineGap: number,
   minLineGap?: number,
@@ -122,9 +122,7 @@ function reflow() {
     if (isScrollBarVisibilityChange(root.value, width)) {
       calculate(metas, virtualRects)
     }
-    if (root.value) {
-      root.value.style.overflow = 'hidden'
-    }
+    style.value.overflow = 'hidden'
     render(virtualRects, metas)
     reflowedEvent.emit(instance as any)
     emit("reflowed");
@@ -175,6 +173,7 @@ let verticalLineProcessor = (() => {
       tops[offset] = tops[offset] + rect.height;
     })
     style.value.height = Math.max.apply(Math, tops) + 'px';
+    console.log("style.value.height:", style.value.height);
   }
 
   function getRowStrategy(width: number, options: Options) {
@@ -274,7 +273,6 @@ let horizontalLineProcessor = (() => {
   function getGreedyCount(rowWidth: number, rowHeight: number, metas: Meta[], offset: number) {
     let count = 0
     for (let i = offset, width = 0; i < metas.length && width <= rowWidth; i++) {
-      //! 按高度进行等比适配宽度
       width += metas[i].width * rowHeight / metas[i].height
       count++
     }
@@ -291,7 +289,6 @@ let horizontalLineProcessor = (() => {
     let canFit = (fitHeight <= options.maxLineGap && fitHeight >= options.minLineGap)
     if (canFit) {
       return {
-        //?cost 这个是啥?
         cost: Math.abs(options.lineGap - fitHeight),
         count: count,
         width: rowWidth,
@@ -343,7 +340,7 @@ function render(rects: Rect[], metas: Meta[]) {
   applyRects(rects, metas)
   let lastRects = getRects(metasNeedToMoveByTransform)
   metasNeedToMoveByTransform.forEach((meta, i) => {
-    
+
     Object.assign(meta.node, { [MOVE_CLASS_PROP]: meta.moveClass })
     setTransform(meta.node, firstRects[i], lastRects[i])
   })
