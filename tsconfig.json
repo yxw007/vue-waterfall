@@ -18,9 +18,11 @@
 		"allowJs": true
 	},
 	"include": [
+		"lib/**/*.ts",
+		"lib/**/*.d.ts",
+		"lib/**/*.vue",
 		"src/**/*.ts",
 		"src/**/*.d.ts",
-		"src/**/*.tsx",
 		"src/**/*.vue"
 	],
 	"references": [

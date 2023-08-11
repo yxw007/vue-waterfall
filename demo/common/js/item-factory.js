@@ -11,6 +11,7 @@ function generateRandomItems(count) {
       height: 100 + ~~(Math.random() * 50)
     }
   }
+
   return items
 }
 

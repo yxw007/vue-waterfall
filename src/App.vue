@@ -1,5 +1,6 @@
 <template>
-	<div class="wrapper">
+	<div class="wrapper"
+			 @click="shuffle">
 		<waterfall :align="align"
 							 :line-gap="200"
 							 :min-line-gap="100"
@@ -32,7 +33,7 @@ export default {
 		waterfall, waterfallSlot
 	},
 	data: () => ({
-		align: 'right',
+		align: 'center',
 		items: ItemFactory.get(100),
 		isBusy: false
 	}),
@@ -53,9 +54,14 @@ export default {
 			}
 		},
 		shuffle() {
+			debugger
+			console.log("pre");
+			console.log(this.items);
 			this.items.sort(function () {
-				return Math.random() - 0.5
+				return Math.random() - 0.8
 			})
+			console.log("after");
+			console.log(this.items);
 		},
 		reflowed() {
 			this.isBusy = false

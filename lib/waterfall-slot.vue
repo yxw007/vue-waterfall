@@ -1,24 +1,18 @@
 <template>
   <div class="vue-waterfall-slot"
+       ref="root"
        v-show="isShow">
     <slot></slot>
   </div>
 </template>
 
-<style>
-.vue-waterfall-slot {
-  position: absolute;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-</style>
 
 <script setup lang="ts">
 import { ref, watch, getCurrentInstance, nextTick, onMounted, onUnmounted } from "vue";
-import { reflowEvent, reflowedEvent } from "./common"
+import { ChildInstance, reflowEvent, reflowedEvent } from "./common"
 
-const instance = getCurrentInstance();
+const instance: ChildInstance = getCurrentInstance();
+const root = ref(null);
 
 type Props = {
   width: number,
@@ -36,39 +30,34 @@ const isShow = ref<boolean>(false);
 
 function notify() {
   nextTick(() => {
-    reflowEvent.emit(instance);
+    reflowEvent.emit(instance as any);
   });
 }
-
-console.log("vue-waterfall-slot");
 
 function getMeta() {
   return {
     vm: instance,
-    node: instance.ctx.$el,
-    order: order,
-    width: width,
-    height: height,
-    moveClass: moveClass
+    node: root.value,
+    order,
+    width,
+    height,
+    moveClass
   }
 }
 
 onMounted(() => {
-  instance.rect = {
+  instance!.rect = {
     top: 0,
     left: 0,
     width: 0,
     height: 0
   }
-  watch(() => (
-    width,
-    height
-  ), notify)
 
+  watch(() => [width, height], notify)
   reflowedEvent.once(() => {
     isShow.value = true
   });
-  notify()
+  notify();
 })
 
 onUnmounted(() => {
@@ -80,3 +69,12 @@ defineExpose({
 });
 
 </script>
+
+<style>
+.vue-waterfall-slot {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+</style>
