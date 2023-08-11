@@ -1,5 +1,14 @@
 ![preview](vue-waterfall.jpg)
 
+> Because [vue-waterfall](https://github.com/moptym/vue-waterfall) last update was 6 years ago, and naturally did not support Vue3. I have now supported Vue3 based on the previous code. 🎉
+
+** Adjust point: **
+- The upgrade to Vue3 setup 🚀
+- Written with Typescript
+- Webpack switch to vite packaging
+
+> At present, there is no adjustment of the layout algorithm, and the performance adjustment code may be optimized later.
+
 # vue-waterfall
 
 [![Build Status](https://img.shields.io/travis/MopTym/vue-waterfall.svg?style=flat-square)](https://travis-ci.org/MopTym/vue-waterfall)
@@ -8,13 +17,11 @@
 
 A waterfall layout component for Vue.js .
 
-Branch [0.x (version 0.x.x)](https://github.com/MopTym/vue-waterfall/tree/0.x) is compatible with Vue 1 .
-
 ## Demo
 
 - [Vertical line](http://app.moptym.com/vue-waterfall/demo/vertical-line.html)
 - [Horizontal line](http://app.moptym.com/vue-waterfall/demo/horizontal-line.html)
-- [Vertical line with grow](http://app.moptym.com/vue-waterfall/demo/vertical-line-with-grow.html)
+- [Vertical line with grow](http://app.moptym.com/vue-waterfall/demo/vertical-line-with-grow.html) [There is still some problem]
 
 ## Installation
 
@@ -33,14 +40,7 @@ Vue-waterfall is a [UMD](https://github.com/umdjs/umd) module, which can be used
 ```js
 /* in xxx.vue */
 
-import Waterfall from 'vue-waterfall/lib/waterfall'
-import WaterfallSlot from 'vue-waterfall/lib/waterfall-slot'
-
-/*
- * or use ES5 code (vue-waterfall.min.js) :
- * import { Waterfall, WaterfallSlot } from 'vue-waterfall'
- */
-
+import { Waterfall, WaterfallSlot } from 'vue-waterfall3'
 export default {
   ...
   components: {
@@ -55,13 +55,13 @@ export default {
 
 ```js
 var Vue = require('vue')
-var Waterfall = require('vue-waterfall')
+var VueWaterfall = require('vue-waterfall3')
 
 var YourComponent = Vue.extend({
   ...
   components: {
-    'waterfall': Waterfall.waterfall,
-    'waterfall-slot': Waterfall.waterfallSlot
+    'waterfall': VueWaterfall.Waterfall,
+    'waterfall-slot': VueWaterfall.WaterfallSlot
   },
   ...
 })
@@ -71,15 +71,15 @@ var YourComponent = Vue.extend({
 
 ```html
 <script src="path/to/vue/vue.min.js"></script>
-<script src="path/to/vue-waterfall/vue-waterfall.min.js"></script>
+<script src="path/to/vue-waterfall/vue-waterfall.umd.js"></script>
 ```
 
 ```js
 new Vue({
   ...
   components: {
-    'waterfall': Waterfall.waterfall,
-    'waterfall-slot': Waterfall.waterfallSlot
+    'waterfall': VueWaterfall.Waterfall,
+    'waterfall-slot': VueWaterfall.WaterfallSlot
   },
   ...
 })
@@ -256,3 +256,5 @@ WHEN ( slot changes ) { /* add, remove, etc. */
 ## License
 
 Released under the [MIT](LICENSE) License.
+
+## 
