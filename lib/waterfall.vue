@@ -343,7 +343,7 @@ function render(rects: Rect[], metas: Meta[]) {
   applyRects(rects, metas)
   let lastRects = getRects(metasNeedToMoveByTransform)
   metasNeedToMoveByTransform.forEach((meta, i) => {
-    debugger
+    
     Object.assign(meta.node, { [MOVE_CLASS_PROP]: meta.moveClass })
     setTransform(meta.node, firstRects[i], lastRects[i])
   })

@@ -54,7 +54,7 @@ export default {
 			}
 		},
 		shuffle() {
-			debugger
+			
 			console.log("pre");
 			console.log(this.items);
 			this.items.sort(function () {
