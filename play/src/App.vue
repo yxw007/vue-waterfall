@@ -54,14 +54,9 @@ export default {
 			}
 		},
 		shuffle() {
-
-			console.log("pre");
-			console.log(this.items);
 			this.items.sort(function () {
 				return Math.random() - 0.8
 			})
-			console.log("after");
-			console.log(this.items);
 		},
 		reflowed() {
 			this.isBusy = false

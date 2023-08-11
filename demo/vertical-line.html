@@ -12,6 +12,8 @@
   <title>Vertical Line</title>
   <link rel="stylesheet"
         href="./common/css/style.css">
+  <link rel="stylesheet"
+        href="../dist/style.css">
   <style>
     .item-move {
       transition: all .5s cubic-bezier(.55, 0, .1, 1);
@@ -24,10 +26,9 @@
   <div id="app">
     <waterfall :align="align"
                :line-gap="200"
-               :min-line-gap="100"
+               :min-line-gap="180"
                :max-line-gap="220"
-               :single-max-width="300"
-               :watch="items"
+               :datas="items"
                @reflowed="reflowed"
                ref="waterfall">
       <!-- each component is wrapped by a waterfall slot -->
@@ -43,25 +44,35 @@
       </waterfall-slot>
     </waterfall>
   </div>
-  <script src="https://cdn.jsdelivr.net/vue/2.2.6/vue.min.js"></script>
-  <!-- <script src="http://app.moptym.com/cdn/vue-waterfall/vue-waterfall.min.js"></script> -->
-  <script type="module"
-          src="../dist/vue-waterfall.js"></script>
-  <script type="module"
-          src="./common/js/item-factory.js"></script>
-  <script>
-    console.log(VueWaterfall);
-    console.log(Waterfall);
-    var app = new Vue({
-      el: '#app',
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="../dist/vue-waterfall.umd.js"></script>
+  <script type="module">
+    import ItemFactory from "./common/js/item-factory.js";
+    const {createApp} = Vue;
+
+    const App = {
       components: {
-        'waterfall': waterfall,
-        'waterfall-slot': waterfallSlot
+        'waterfall': VueWaterfall.Waterfall,
+        'waterfall-slot': VueWaterfall.WaterfallSlot
       },
-      data: {
+      data: () => ({
         align: 'center',
         items: ItemFactory.get(100),
         isBusy: false
+      }),
+      mounted() {
+        let self = this;
+        document.body.addEventListener('click', function () {
+          self.shuffle()
+          // app.$refs.waterfall.$emit('reflow') // manually trigger reflow action
+        }, false)
+
+        window.addEventListener('scroll', function () {
+          var scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+          if (scrollTop + window.innerHeight >= document.body.clientHeight) {
+            self.addItems()
+          }
+        })
       },
       methods: {
         addItems: function () {
@@ -79,20 +90,10 @@
           this.isBusy = false
         }
       }
-    })
+    }
 
-    document.body.addEventListener('click', function () {
-      app.shuffle()
-      // app.$refs.waterfall.$emit('reflow') // manually trigger reflow action
-    }, false)
-
-    window.addEventListener('scroll', function () {
-      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-      if (scrollTop + window.innerHeight >= document.body.clientHeight) {
-        app.addItems()
-      }
-    })
-
+    const app = createApp(App);
+    app.mount("#app");
   </script>
 </body>
 
