@@ -5,8 +5,6 @@ import { resolve } from 'path';
 
 const isBuild = process.argv.includes("build");
 
-console.log("isBuild:", isBuild);
-
 const devConfig = () => defineConfig({
 	plugins: [vue()],
 });
@@ -14,7 +12,7 @@ const devConfig = () => defineConfig({
 const libConfig = () => defineConfig({
 	plugins: [vue(), dts()],
 	build: {
-		sourcemap: true,
+		sourcemap: false,
 		lib: {
 			entry: resolve(__dirname, "lib/index.ts"),
 			name: "VueWaterfall",
