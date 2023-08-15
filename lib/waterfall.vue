@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import type { Align, Line, Meta, Rect } from "./common";
 
-import { getCurrentInstance, ref, toRefs, onMounted, onBeforeUnmount, watch } from 'vue'
+import { getCurrentInstance, ref, toRefs, onMounted, onBeforeUnmount, watch, VNodeArrayChildren, VNode } from 'vue'
 import {
   reflowEvent, reflowedEvent, on, off, addClass,
   removeClass,
@@ -25,6 +25,7 @@ type Options = ReturnType<typeof getOptions>;
 
 const instance = getCurrentInstance();
 const root = ref<HTMLElement | null>(null);
+const child = ref<HTMLElement | null>(null);
 const MOVE_CLASS_PROP = '_wfMoveClass'
 type Props = {
   autoResize?: boolean,
@@ -63,11 +64,9 @@ const style = ref({
 
 const timerId = ref<any>(null);
 let virtualRects: Array<Rect> = [];
-const childs: Meta[] = [];
 
 onMounted(() => {
   reflowEvent.on((child: any) => {
-    childs.push(child as Meta);
     reflowHandler();
   });
   watch(() => ([align, line, lineGap, minLineGap, maxLineGap, singleMaxWidth, fixedHeight, datas, grow, autoResize]), reflowHandler, { deep: true });
@@ -107,14 +106,29 @@ function reflowHandler() {
   timerId.value = setTimeout(reflow, interval.value)
 }
 
+function getChildMetas(): Meta[] {
+  let childs = root.value?.children ?? [];
+  let metas: Meta[] = Array(childs.length);
+  let childProps: any[] = [];
+  if (instance && instance.slots && instance.slots.default) {
+    let slot = instance.slots.default() ?? [];
+    if (slot.length > 0 && slot[0] && slot[0].children) {
+      childProps = (slot[0].children as VNodeArrayChildren).map(item => (item as VNode).props);
+    }
+  }
+  for (let i = 0; i < childs.length && i < metas.length; i++) {
+    let el = childs[i];
+    let props = childProps[i];
+    metas[i] = Object.assign({}, props, { node: el })
+  }
+
+  return metas;
+}
+
 function reflow() {
   if (!root.value) { return }
-  console.log("reflow");
-
   let width = root.value.clientWidth;
-  let metas = childs.map((child) => {
-    return (child as any).exposeProxy.getMeta();
-  })
+  let metas = getChildMetas();
   metas.sort((a, b) => a.order - b.order)
   virtualRects = metas.map(() => ({ width: 0, height: 0, left: 0, top: 0 }))
   calculate(metas, virtualRects)
@@ -357,11 +371,6 @@ function getRects(metas: Meta[]) {
 function applyRects(rects: Rect[], metas: Meta[]) {
   rects.forEach((rect, i) => {
     let style = metas[i].node.style
-    let vmRect = metas[i].vm?.rect;
-    if (vmRect != null) {
-      Object.assign(vmRect, rect)
-    }
-
     for (let key in rect) {
       Object.assign(style, { [key]: rect[key] + 'px' });
     }

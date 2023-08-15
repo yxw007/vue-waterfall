@@ -34,25 +34,7 @@ function notify() {
   });
 }
 
-function getMeta() {
-  return {
-    vm: instance,
-    node: root.value,
-    order,
-    width,
-    height,
-    moveClass
-  }
-}
-
 onMounted(() => {
-  instance!.rect = {
-    top: 0,
-    left: 0,
-    width: 0,
-    height: 0
-  }
-
   watch(() => [width, height], notify)
   reflowedEvent.once(() => {
     isShow.value = true
@@ -63,10 +45,6 @@ onMounted(() => {
 onUnmounted(() => {
   notify()
 })
-
-defineExpose({
-  getMeta
-});
 
 </script>
 
